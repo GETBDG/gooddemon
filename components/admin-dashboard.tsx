@@ -9,6 +9,8 @@ import { useCatalog } from "@/components/providers/catalog-provider";
 import type { Badge, Collection, Product } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
 
+type ProductImageFormState = Product["images"][number];
+
 type ProductFormState = {
   id: string;
   handle: string;
@@ -28,7 +30,7 @@ type ProductFormState = {
   care: string;
   shipping: string;
   spotlight: string;
-  image: string;
+  images: ProductImageFormState[];
 };
 
 type CollectionFormState = {
@@ -59,18 +61,18 @@ const emptyProduct = (defaultCollection = ""): ProductFormState => ({
   price: "",
   compareAtPrice: "",
   collection: defaultCollection,
-  category: "Tees",
-  color: "Abyss Black",
-  badges: "Limited Drop",
-  sizes: "S, M, L, XL",
-  stock: "10",
+  category: "",
+  color: "",
+  badges: "",
+  sizes: "",
+  stock: "",
   description: "",
-  material: "",
-  fit: "",
-  care: "",
+  material: "Specify composition, weight, finish, and any fabric treatment.",
+  fit: "Specify silhouette, cut, and how the piece sits on body.",
+  care: "Specify washing, drying, and handling instructions.",
   shipping: "Ships worldwide in 2-5 business days.",
   spotlight: "",
-  image: "/images/product-tee-front.svg"
+  images: [{ src: "/images/product-tee-front.svg", alt: "Product image 1" }]
 });
 
 function slugify(value: string) {
@@ -88,12 +90,15 @@ function parseList(value: string) {
     .filter(Boolean);
 }
 
-function createImageSet(src: string, name: string) {
-  return [
-    { src, alt: `${name} image 1` },
-    { src, alt: `${name} image 2` },
-    { src, alt: `${name} image 3` }
-  ];
+function normalizeProductImages(images: ProductImageFormState[], name: string) {
+  if (images.length === 0) {
+    return [{ src: "/images/product-tee-front.svg", alt: `${name} image 1` }];
+  }
+
+  return images.map((image, index) => ({
+    src: image.src,
+    alt: image.alt || `${name} image ${index + 1}`
+  }));
 }
 
 function toProductForm(product: Product): ProductFormState {
@@ -116,7 +121,10 @@ function toProductForm(product: Product): ProductFormState {
     care: product.care,
     shipping: product.shipping,
     spotlight: product.spotlight,
-    image: product.images[0]?.src ?? "/images/product-tee-front.svg"
+    images:
+      product.images.length > 0
+        ? product.images
+        : [{ src: "/images/product-tee-front.svg", alt: `${product.name} image 1` }]
   };
 }
 
@@ -159,6 +167,8 @@ export function AdminDashboard() {
   const [collectionForm, setCollectionForm] = useState<CollectionFormState>(emptyCollection());
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [productEditorInitialized, setProductEditorInitialized] = useState(false);
+  const [isCreatingNewProduct, setIsCreatingNewProduct] = useState(false);
 
   const totalStock = useMemo(
     () => products.reduce((sum, product) => sum + product.stock, 0),
@@ -166,11 +176,12 @@ export function AdminDashboard() {
   );
 
   useEffect(() => {
-    if (!selectedProductId && products[0]) {
+    if (!productEditorInitialized && products[0] && !isCreatingNewProduct) {
       setSelectedProductId(products[0].id);
       setProductForm(toProductForm(products[0]));
+      setProductEditorInitialized(true);
     }
-  }, [products, selectedProductId]);
+  }, [isCreatingNewProduct, productEditorInitialized, products]);
 
   useEffect(() => {
     if (!selectedCollectionHandle && collections[0]) {
@@ -180,12 +191,22 @@ export function AdminDashboard() {
   }, [collections, selectedCollectionHandle]);
 
   function handleProductSelection(productId: string) {
+    if (!productId) {
+      setIsCreatingNewProduct(true);
+      setProductEditorInitialized(true);
+      setSelectedProductId("");
+      setProductForm(emptyProduct());
+      return;
+    }
+
     const product = products.find((entry) => entry.id === productId);
 
     if (!product) {
       return;
     }
 
+    setIsCreatingNewProduct(false);
+    setProductEditorInitialized(true);
     setSelectedProductId(productId);
     setProductForm(toProductForm(product));
   }
@@ -199,6 +220,36 @@ export function AdminDashboard() {
 
     setSelectedCollectionHandle(handle);
     setCollectionForm(toCollectionForm(collection));
+  }
+
+  function updateProductImage(index: number, field: "src" | "alt", value: string) {
+    setProductForm((current) => ({
+      ...current,
+      images: current.images.map((image, imageIndex) =>
+        imageIndex === index ? { ...image, [field]: value } : image
+      )
+    }));
+  }
+
+  function addEmptyProductImage() {
+    setProductForm((current) => ({
+      ...current,
+      images: [...current.images, { src: "", alt: `Product image ${current.images.length + 1}` }]
+    }));
+  }
+
+  function removeProductImage(index: number) {
+    setProductForm((current) => {
+      const nextImages = current.images.filter((_, imageIndex) => imageIndex !== index);
+
+      return {
+        ...current,
+        images:
+          nextImages.length > 0
+            ? nextImages
+            : [{ src: "/images/product-tee-front.svg", alt: "Product image 1" }]
+      };
+    });
   }
 
   async function saveProduct() {
@@ -236,7 +287,7 @@ export function AdminDashboard() {
       care: productForm.care,
       shipping: productForm.shipping,
       spotlight: productForm.spotlight,
-      images: createImageSet(productForm.image, name)
+      images: normalizeProductImages(productForm.images, name)
     };
 
     setBusy(true);
@@ -244,6 +295,8 @@ export function AdminDashboard() {
 
     try {
       await upsertProduct(nextProduct);
+      setIsCreatingNewProduct(false);
+      setProductEditorInitialized(true);
       setSelectedProductId(nextProduct.id);
       setProductForm(toProductForm(nextProduct));
       setStatus(`Saved product: ${nextProduct.name}`);
@@ -298,8 +351,9 @@ export function AdminDashboard() {
 
     try {
       await deleteProduct(selectedProductId);
+      setIsCreatingNewProduct(true);
       setSelectedProductId("");
-      setProductForm(emptyProduct(collections[0]?.handle ?? ""));
+      setProductForm(emptyProduct());
       setStatus("Product deleted.");
     } catch (deleteError) {
       setStatus(deleteError instanceof Error ? deleteError.message : "Could not delete product.");
@@ -329,14 +383,25 @@ export function AdminDashboard() {
   }
 
   async function handleProductImageUpload(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
+    const files = Array.from(event.target.files ?? []);
 
-    if (!file) {
+    if (files.length === 0) {
       return;
     }
 
-    const image = await fileToDataUrl(file);
-    setProductForm((current) => ({ ...current, image }));
+    const uploadedImages = await Promise.all(
+      files.map(async (file, index) => ({
+        src: await fileToDataUrl(file),
+        alt: `${productForm.name || "Product"} image ${productForm.images.length + index + 1}`
+      }))
+    );
+
+    setProductForm((current) => ({
+      ...current,
+      images: [...current.images, ...uploadedImages]
+    }));
+
+    event.target.value = "";
   }
 
   async function handleCollectionImageUpload(event: ChangeEvent<HTMLInputElement>) {
@@ -389,7 +454,9 @@ export function AdminDashboard() {
               <button
                 type="button"
                 onClick={() => {
-                  const next = emptyProduct(collections[0]?.handle ?? "");
+                  const next = emptyProduct();
+                  setIsCreatingNewProduct(true);
+                  setProductEditorInitialized(true);
                   setSelectedProductId("");
                   setProductForm(next);
                 }}
@@ -430,7 +497,9 @@ export function AdminDashboard() {
               <button
                 type="button"
                 onClick={() => {
-                  const next = emptyProduct(collections[0]?.handle ?? "");
+                  const next = emptyProduct();
+                  setIsCreatingNewProduct(true);
+                  setProductEditorInitialized(true);
                   setSelectedProductId("");
                   setProductForm(next);
                 }}
@@ -443,6 +512,11 @@ export function AdminDashboard() {
             </div>
 
             <div className="mt-6 grid gap-4">
+              {collections.length === 0 ? (
+                <div className="rounded-[1.4rem] border border-ember/30 bg-ember/10 p-4 text-sm leading-7 text-bone/75">
+                  Create and save a collection first. Products need a real collection handle before they can be saved.
+                </div>
+              ) : null}
               <div className="grid gap-3 md:grid-cols-2">
                 <label className="grid gap-2 text-sm text-bone/60">
                   Product
@@ -523,7 +597,7 @@ export function AdminDashboard() {
                 />
               </label>
 
-              <div className="grid gap-3 md:grid-cols-4">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <label className="grid gap-2 text-sm text-bone/60">
                   Price
                   <input
@@ -572,7 +646,7 @@ export function AdminDashboard() {
                 </label>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-3">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 <label className="grid gap-2 text-sm text-bone/60">
                   Color
                   <input
@@ -681,38 +755,90 @@ export function AdminDashboard() {
                 />
               </label>
 
-              <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+              <div className="grid gap-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.16em] text-bone">Product gallery</p>
+                    <p className="mt-2 text-xs leading-6 text-bone/42">
+                      Upload multiple images at once. Recommended `4:5` portrait, `2000x2500`, minimum `1600x2000`.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addEmptyProductImage}
+                    className="inline-flex items-center gap-2 rounded-full border border-bone/15 px-4 py-2 text-[0.65rem] uppercase tracking-[0.22em] text-bone/70 transition hover:border-bone/40 hover:text-bone"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Add image
+                  </button>
+                </div>
                 <label className="grid gap-2 text-sm text-bone/60">
-                  Image URL or uploaded asset
-                  <input
-                    value={productForm.image}
-                    onChange={(event) =>
-                      setProductForm((current) => ({ ...current, image: event.target.value }))
-                    }
-                    className="rounded-[1rem] border border-bone/10 bg-black/35 px-4 py-3 text-bone outline-none"
-                  />
-                  <span className="text-xs leading-6 text-bone/42">
-                    Product main image: `4:5` portrait. Recommended `2000x2500`, minimum `1600x2000`.
-                  </span>
-                </label>
-                <label className="grid gap-2 text-sm text-bone/60">
-                  Upload image
+                  Upload images
                   <input
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={handleProductImageUpload}
                     className="rounded-[1rem] border border-bone/10 bg-black/35 px-4 py-3 text-bone file:mr-3 file:border-0 file:bg-bone file:px-3 file:py-2 file:text-xs file:uppercase file:tracking-[0.18em] file:text-abyss"
                   />
                 </label>
+                <div className="grid gap-4">
+                  {productForm.images.map((image, index) => (
+                    <div key={`${image.src}-${index}`} className="rounded-[1.5rem] border border-bone/10 bg-white/[0.02] p-4">
+                      <div className="grid gap-4 lg:grid-cols-[0.28fr_0.72fr]">
+                        <div className="relative aspect-[4/5] overflow-hidden rounded-[1.2rem] border border-bone/10 bg-black/30">
+                          <Image
+                            src={image.src || "/images/product-tee-front.svg"}
+                            alt={image.alt || `Product image ${index + 1}`}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="grid gap-3">
+                          <label className="grid gap-2 text-sm text-bone/60">
+                            Image URL
+                            <input
+                              value={image.src}
+                              onChange={(event) =>
+                                updateProductImage(index, "src", event.target.value)
+                              }
+                              className="rounded-[1rem] border border-bone/10 bg-black/35 px-4 py-3 text-bone outline-none"
+                            />
+                          </label>
+                          <label className="grid gap-2 text-sm text-bone/60">
+                            Alt text
+                            <input
+                              value={image.alt}
+                              onChange={(event) =>
+                                updateProductImage(index, "alt", event.target.value)
+                              }
+                              className="rounded-[1rem] border border-bone/10 bg-black/35 px-4 py-3 text-bone outline-none"
+                            />
+                          </label>
+                          <div className="flex justify-end">
+                            <button
+                              type="button"
+                              onClick={() => removeProductImage(index)}
+                              className="inline-flex items-center gap-2 rounded-full border border-ember/35 px-4 py-2 text-[0.65rem] uppercase tracking-[0.22em] text-ember transition hover:border-ember/70"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                              Remove image
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="flex flex-wrap gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={saveProduct}
-                    disabled={busy || !configured}
-                    className="rounded-full bg-bone px-6 py-3 text-xs uppercase tracking-[0.22em] text-abyss transition hover:bg-white"
-                  >
+                <button
+                  type="button"
+                  onClick={saveProduct}
+                  disabled={busy || !configured || collections.length === 0}
+                  className="rounded-full bg-bone px-6 py-3 text-xs uppercase tracking-[0.22em] text-abyss transition hover:bg-white"
+                >
                     {busy ? "Saving..." : "Save product"}
                   </button>
                 {selectedProductId ? (
