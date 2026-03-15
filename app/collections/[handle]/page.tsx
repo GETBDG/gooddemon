@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { CollectionRouteShell } from "@/components/collection-route-shell";
-import { getCollectionByHandle } from "@/content/site";
 
 type Props = {
   params: {
@@ -12,12 +11,9 @@ type Props = {
 };
 
 export function generateMetadata({ params }: Props): Metadata {
-  const collection = getCollectionByHandle(params.handle);
-
   return {
-    title: collection ? `${collection.name} | GOODDEMON` : "Collection | GOODDEMON",
-    description:
-      collection?.description ?? "GOODDEMON collection page. Preview collections created from admin."
+    title: "Collection | GOODDEMON",
+    description: `GOODDEMON collection page for ${params.handle}. Loaded from Supabase catalog.`
   };
 }
 

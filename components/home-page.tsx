@@ -13,6 +13,13 @@ import { categories, cultureFeed, lookbook, siteConfig } from "@/content/site";
 import { formatPrice } from "@/lib/utils";
 
 function HeroSection() {
+  const { collections } = useCatalog();
+  const primaryCollection = collections[0];
+  const heroCtas = [
+    { label: "Shop the Drop", href: primaryCollection ? `/collections/${primaryCollection.handle}` : "/admin" },
+    { label: "Enter the Control Room", href: primaryCollection ? "#drop" : "/admin" }
+  ];
+
   return (
     <section className="container-shell relative min-h-[calc(100vh-88px)] py-10">
       <div className="grid min-h-[78vh] gap-8 lg:grid-cols-[1.15fr_0.85fr]">
@@ -35,7 +42,7 @@ function HeroSection() {
             </div>
             <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
               <div className="flex flex-wrap gap-3">
-                {siteConfig.hero.ctas.map((cta, index) => (
+                {heroCtas.map((cta, index) => (
                   <Button key={cta.label} href={cta.href} variant={index === 0 ? "primary" : "secondary"}>
                     {cta.label}
                   </Button>
@@ -95,7 +102,20 @@ function DropSection() {
   const heroProduct = products[0];
 
   if (!heroProduct) {
-    return null;
+    return (
+      <section id="drop" className="container-shell py-20">
+        <div className="panel rounded-[2.5rem] p-8 sm:p-10">
+          <p className="eyebrow">Catalog Empty</p>
+          <h2 className="mt-4 font-serif text-5xl uppercase leading-none">No drop products yet.</h2>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-bone/62">
+            Connect Supabase, create a collection in `/admin`, then add products. This section will populate from the database automatically.
+          </p>
+          <div className="mt-6">
+            <Button href="/admin">Open Admin</Button>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
@@ -180,13 +200,19 @@ function FeaturedProductsSection() {
         title="Editorial cards with buying intent."
         description="Second-image hover, quick add, wishlist persistence, premium typography, and enough whitespace for the product to feel expensive."
       />
-      <div className="mt-10 grid gap-8 lg:grid-cols-2">
-        {products.map((product, index) => (
-          <FadeIn key={product.id} delay={index * 0.06}>
-            <ProductCard product={product} />
-          </FadeIn>
-        ))}
-      </div>
+      {products.length === 0 ? (
+        <div className="mt-10 panel rounded-[2rem] p-8">
+          <p className="text-sm uppercase tracking-[0.2em] text-bone/42">No products loaded from Supabase.</p>
+        </div>
+      ) : (
+        <div className="mt-10 grid gap-8 lg:grid-cols-2">
+          {products.map((product, index) => (
+            <FadeIn key={product.id} delay={index * 0.06}>
+              <ProductCard product={product} />
+            </FadeIn>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
@@ -215,6 +241,12 @@ function ManifestoSection() {
 }
 
 function LookbookSection() {
+  const { products } = useCatalog();
+  const availableHandles = new Set(products.map((product) => product.handle));
+  const primaryLookbookHandles = lookbook[0].productHandles.filter((handle) =>
+    availableHandles.has(handle)
+  );
+
   return (
     <section id="lookbook" className="container-shell py-20">
       <SectionHeading
@@ -229,13 +261,17 @@ function LookbookSection() {
           <div className="absolute bottom-0 left-0 right-0 space-y-4 p-8">
             <p className="eyebrow">{lookbook[0].title}</p>
             <p className="max-w-lg font-serif text-4xl leading-none">{lookbook[0].caption}</p>
-            <div className="flex flex-wrap gap-2">
-              {lookbook[0].productHandles.map((handle) => (
-                <Button key={handle} href={`/products/${handle}`} variant="secondary">
-                  Shop the Look
-                </Button>
-              ))}
-            </div>
+            {primaryLookbookHandles.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {primaryLookbookHandles.map((handle) => (
+                  <Button key={handle} href={`/products/${handle}`} variant="secondary">
+                    Shop the Look
+                  </Button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm uppercase tracking-[0.18em] text-bone/45">Campaign only</p>
+            )}
           </div>
         </FadeIn>
         <div className="grid gap-6">
@@ -249,13 +285,19 @@ function LookbookSection() {
                   <p className="eyebrow">{item.title}</p>
                   <p className="mt-4 font-serif text-4xl leading-none">{item.caption}</p>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {item.productHandles.map((handle) => (
-                    <Button key={handle} href={`/products/${handle}`} variant="secondary">
-                      Open Look
-                    </Button>
-                  ))}
-                </div>
+                {item.productHandles.some((handle) => availableHandles.has(handle)) ? (
+                  <div className="flex flex-wrap gap-2">
+                    {item.productHandles
+                      .filter((handle) => availableHandles.has(handle))
+                      .map((handle) => (
+                        <Button key={handle} href={`/products/${handle}`} variant="secondary">
+                          Open Look
+                        </Button>
+                      ))}
+                  </div>
+                ) : (
+                  <p className="text-sm uppercase tracking-[0.18em] text-bone/45">Campaign only</p>
+                )}
               </div>
             </FadeIn>
           ))}
@@ -266,6 +308,10 @@ function LookbookSection() {
 }
 
 function CategoriesSection() {
+  const { collections } = useCatalog();
+  const primaryCollection = collections[0];
+  const secondaryCollection = collections[1] ?? collections[0];
+
   return (
     <section className="container-shell py-20">
       <SectionHeading
@@ -276,7 +322,15 @@ function CategoriesSection() {
         {categories.map((category, index) => (
           <FadeIn key={category.slug} delay={index * 0.04}>
             <Link
-              href={category.href}
+              href={
+                category.slug === "outerwear"
+                  ? secondaryCollection
+                    ? `/collections/${secondaryCollection.handle}`
+                    : "/admin"
+                  : primaryCollection
+                    ? `/collections/${primaryCollection.handle}`
+                    : "/admin"
+              }
               className="group relative block min-h-[19rem] overflow-hidden rounded-[2.2rem] border border-bone/10"
             >
               <Image src={category.image} alt={category.title} fill className="object-cover transition duration-700 group-hover:scale-[1.03]" />
@@ -300,7 +354,7 @@ function CategoriesSection() {
 }
 
 function SpotlightSection() {
-  const { products } = useCatalog();
+  const { collections, products } = useCatalog();
   const spotlight = products[2];
 
   if (!spotlight) {
@@ -333,8 +387,11 @@ function SpotlightSection() {
           </div>
           <div className="flex flex-wrap gap-3">
             <Button href={`/products/${spotlight.handle}`}>View Product</Button>
-            <Button href="/collections/the-faithless" variant="secondary">
-              Explore Archive
+            <Button
+              href={collections[1] ? `/collections/${collections[1].handle}` : "/admin"}
+              variant="secondary"
+            >
+              {collections[1] ? "Explore Archive" : "Open Admin"}
             </Button>
           </div>
         </FadeIn>
@@ -392,11 +449,18 @@ function EmailCaptureSection() {
 }
 
 export function HomePage() {
-  const { collections } = useCatalog();
+  const { collections, loading, error } = useCatalog();
 
   return (
     <>
       <HeroSection />
+      {error ? (
+        <section className="container-shell pt-4">
+          <div className="rounded-[1.6rem] border border-ember/30 bg-ember/10 p-4 text-sm text-bone/75">
+            {error}
+          </div>
+        </section>
+      ) : null}
       <DropSection />
       <FeaturedProductsSection />
       <ManifestoSection />
@@ -407,6 +471,15 @@ export function HomePage() {
       <EmailCaptureSection />
       <section className="container-shell py-10">
         <div className="grid gap-6 rounded-[2.3rem] border border-bone/10 p-6 sm:grid-cols-2 xl:grid-cols-4">
+          {collections.length === 0 && !loading ? (
+            <div className="panel rounded-[1.8rem] p-5">
+              <p className="eyebrow">Collections</p>
+              <p className="mt-3 font-serif text-3xl uppercase">No collections yet.</p>
+              <p className="mt-3 text-sm leading-7 text-bone/62">
+                Create the first collection in `/admin` and it will appear here.
+              </p>
+            </div>
+          ) : null}
           {collections.map((collection) => (
             <Link key={collection.handle} href={`/collections/${collection.handle}`} className="panel rounded-[1.8rem] p-5 transition hover:border-bone/30">
               <p className="eyebrow">{collection.eyebrow}</p>

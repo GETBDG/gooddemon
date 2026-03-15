@@ -51,7 +51,7 @@ const emptyCollection = (): CollectionFormState => ({
   tags: "Limited Drop"
 });
 
-const emptyProduct = (defaultCollection = "the-betrayal"): ProductFormState => ({
+const emptyProduct = (defaultCollection = ""): ProductFormState => ({
   id: "",
   handle: "",
   name: "",
@@ -145,6 +145,9 @@ export function AdminDashboard() {
   const {
     products,
     collections,
+    configured,
+    error,
+    loading,
     upsertProduct,
     deleteProduct,
     upsertCollection,
@@ -154,6 +157,8 @@ export function AdminDashboard() {
   const [selectedCollectionHandle, setSelectedCollectionHandle] = useState<string>("");
   const [productForm, setProductForm] = useState<ProductFormState>(emptyProduct());
   const [collectionForm, setCollectionForm] = useState<CollectionFormState>(emptyCollection());
+  const [status, setStatus] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   const totalStock = useMemo(
     () => products.reduce((sum, product) => sum + product.stock, 0),
@@ -196,16 +201,22 @@ export function AdminDashboard() {
     setCollectionForm(toCollectionForm(collection));
   }
 
-  function saveProduct() {
+  async function saveProduct() {
     const name = productForm.name.trim();
     const handle = (productForm.handle || slugify(name)).trim();
 
     if (!name || !handle) {
+      setStatus("Product name and handle are required.");
+      return;
+    }
+
+    if (!productForm.collection.trim()) {
+      setStatus("A collection handle is required before saving a product.");
       return;
     }
 
     const nextProduct: Product = {
-      id: productForm.id || `gd-${Date.now()}`,
+      id: productForm.id || crypto.randomUUID(),
       handle,
       name,
       tagline: productForm.tagline,
@@ -228,16 +239,27 @@ export function AdminDashboard() {
       images: createImageSet(productForm.image, name)
     };
 
-    upsertProduct(nextProduct);
-    setSelectedProductId(nextProduct.id);
-    setProductForm(toProductForm(nextProduct));
+    setBusy(true);
+    setStatus(null);
+
+    try {
+      await upsertProduct(nextProduct);
+      setSelectedProductId(nextProduct.id);
+      setProductForm(toProductForm(nextProduct));
+      setStatus(`Saved product: ${nextProduct.name}`);
+    } catch (saveError) {
+      setStatus(saveError instanceof Error ? saveError.message : "Could not save product.");
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function saveCollection() {
+  async function saveCollection() {
     const name = collectionForm.name.trim();
     const handle = (collectionForm.handle || slugify(name)).trim();
 
     if (!name || !handle) {
+      setStatus("Collection name and handle are required.");
       return;
     }
 
@@ -251,9 +273,59 @@ export function AdminDashboard() {
       tags: parseList(collectionForm.tags)
     };
 
-    upsertCollection(nextCollection);
-    setSelectedCollectionHandle(nextCollection.handle);
-    setCollectionForm(toCollectionForm(nextCollection));
+    setBusy(true);
+    setStatus(null);
+
+    try {
+      await upsertCollection(nextCollection);
+      setSelectedCollectionHandle(nextCollection.handle);
+      setCollectionForm(toCollectionForm(nextCollection));
+      setStatus(`Saved collection: ${nextCollection.name}`);
+    } catch (saveError) {
+      setStatus(saveError instanceof Error ? saveError.message : "Could not save collection.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeProduct() {
+    if (!selectedProductId) {
+      return;
+    }
+
+    setBusy(true);
+    setStatus(null);
+
+    try {
+      await deleteProduct(selectedProductId);
+      setSelectedProductId("");
+      setProductForm(emptyProduct(collections[0]?.handle ?? ""));
+      setStatus("Product deleted.");
+    } catch (deleteError) {
+      setStatus(deleteError instanceof Error ? deleteError.message : "Could not delete product.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeCollection() {
+    if (!selectedCollectionHandle) {
+      return;
+    }
+
+    setBusy(true);
+    setStatus(null);
+
+    try {
+      await deleteCollection(selectedCollectionHandle);
+      setSelectedCollectionHandle("");
+      setCollectionForm(emptyCollection());
+      setStatus("Collection deleted.");
+    } catch (deleteError) {
+      setStatus(deleteError instanceof Error ? deleteError.message : "Could not delete collection.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleProductImageUpload(event: ChangeEvent<HTMLInputElement>) {
@@ -292,6 +364,21 @@ export function AdminDashboard() {
               assign collections, load images, set prices, sizes, stock, and brand copy without
               touching code.
             </p>
+            {!configured ? (
+              <div className="rounded-[1.6rem] border border-ember/30 bg-ember/10 p-4 text-sm leading-7 text-bone/75">
+                Supabase is not configured. Add the values from `.env.example`, run the SQL in `supabase/schema.sql`, and reload.
+              </div>
+            ) : null}
+            {error ? (
+              <div className="rounded-[1.6rem] border border-ember/30 bg-ember/10 p-4 text-sm leading-7 text-bone/75">
+                {error}
+              </div>
+            ) : null}
+            {status ? (
+              <div className="rounded-[1.6rem] border border-bone/10 bg-white/[0.03] p-4 text-sm leading-7 text-bone/75">
+                {status}
+              </div>
+            ) : null}
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/"
@@ -302,10 +389,11 @@ export function AdminDashboard() {
               <button
                 type="button"
                 onClick={() => {
-                  const next = emptyProduct(collections[0]?.handle ?? "the-betrayal");
+                  const next = emptyProduct(collections[0]?.handle ?? "");
                   setSelectedProductId("");
                   setProductForm(next);
                 }}
+                disabled={busy}
                 className="rounded-full border border-bone/15 px-6 py-3 text-xs uppercase tracking-[0.22em] text-bone transition hover:border-bone/40"
               >
                 New product
@@ -313,12 +401,12 @@ export function AdminDashboard() {
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            {[
-              { label: "Products", value: products.length, note: "Live catalog entries" },
-              { label: "Collections", value: collections.length, note: "Drop and archive groups" },
-              { label: "Stock Units", value: totalStock, note: "Inventory count in local preview" },
-              { label: "Categories", value: categories.length, note: "Visible storefront entrypoints" }
-            ].map((metric) => (
+              {[
+                { label: "Products", value: products.length, note: "Live catalog entries" },
+                { label: "Collections", value: collections.length, note: "Drop and archive groups" },
+                { label: "Stock Units", value: totalStock, note: "Inventory count in Supabase" },
+                { label: "Status", value: loading ? "..." : "Live", note: configured ? "Connected to Supabase" : "Waiting for env vars" }
+              ].map((metric) => (
               <div key={metric.label} className="panel rounded-[1.8rem] p-5">
                 <p className="text-[0.62rem] uppercase tracking-[0.28em] text-bone/35">
                   {metric.label}
@@ -342,10 +430,11 @@ export function AdminDashboard() {
               <button
                 type="button"
                 onClick={() => {
-                  const next = emptyProduct(collections[0]?.handle ?? "the-betrayal");
+                  const next = emptyProduct(collections[0]?.handle ?? "");
                   setSelectedProductId("");
                   setProductForm(next);
                 }}
+                disabled={busy}
                 className="inline-flex items-center gap-2 rounded-full border border-bone/15 px-4 py-2 text-[0.65rem] uppercase tracking-[0.22em] text-bone/70 transition hover:border-bone/40 hover:text-bone"
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -371,20 +460,31 @@ export function AdminDashboard() {
                   </select>
                 </label>
                 <label className="grid gap-2 text-sm text-bone/60">
-                  Collection
-                  <select
-                    value={productForm.collection}
-                    onChange={(event) =>
-                      setProductForm((current) => ({ ...current, collection: event.target.value }))
-                    }
-                    className="rounded-[1rem] border border-bone/10 bg-black/35 px-4 py-3 text-bone outline-none"
-                  >
-                    {collections.map((collection) => (
-                      <option key={collection.handle} value={collection.handle}>
-                        {collection.name}
-                      </option>
-                    ))}
-                  </select>
+                  Collection handle
+                  {collections.length > 0 ? (
+                    <select
+                      value={productForm.collection}
+                      onChange={(event) =>
+                        setProductForm((current) => ({ ...current, collection: event.target.value }))
+                      }
+                      className="rounded-[1rem] border border-bone/10 bg-black/35 px-4 py-3 text-bone outline-none"
+                    >
+                      {collections.map((collection) => (
+                        <option key={collection.handle} value={collection.handle}>
+                          {collection.name} ({collection.handle})
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      value={productForm.collection}
+                      onChange={(event) =>
+                        setProductForm((current) => ({ ...current, collection: event.target.value }))
+                      }
+                      placeholder="create-collection-first"
+                      className="rounded-[1rem] border border-bone/10 bg-black/35 px-4 py-3 text-bone outline-none"
+                    />
+                  )}
                 </label>
               </div>
 
@@ -591,6 +691,9 @@ export function AdminDashboard() {
                     }
                     className="rounded-[1rem] border border-bone/10 bg-black/35 px-4 py-3 text-bone outline-none"
                   />
+                  <span className="text-xs leading-6 text-bone/42">
+                    Product main image: `4:5` portrait. Recommended `2000x2500`, minimum `1600x2000`.
+                  </span>
                 </label>
                 <label className="grid gap-2 text-sm text-bone/60">
                   Upload image
@@ -604,21 +707,19 @@ export function AdminDashboard() {
               </div>
 
               <div className="flex flex-wrap gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={saveProduct}
-                  className="rounded-full bg-bone px-6 py-3 text-xs uppercase tracking-[0.22em] text-abyss transition hover:bg-white"
-                >
-                  Save product
-                </button>
+                  <button
+                    type="button"
+                    onClick={saveProduct}
+                    disabled={busy || !configured}
+                    className="rounded-full bg-bone px-6 py-3 text-xs uppercase tracking-[0.22em] text-abyss transition hover:bg-white"
+                  >
+                    {busy ? "Saving..." : "Save product"}
+                  </button>
                 {selectedProductId ? (
                   <button
                     type="button"
-                    onClick={() => {
-                      deleteProduct(selectedProductId);
-                      setSelectedProductId("");
-                      setProductForm(emptyProduct(collections[0]?.handle ?? "the-betrayal"));
-                    }}
+                    onClick={removeProduct}
+                    disabled={busy || !configured}
                     className="inline-flex items-center gap-2 rounded-full border border-ember/35 px-6 py-3 text-xs uppercase tracking-[0.22em] text-ember transition hover:border-ember/70"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -781,6 +882,9 @@ export function AdminDashboard() {
                     }
                     className="rounded-[1rem] border border-bone/10 bg-black/35 px-4 py-3 text-bone outline-none"
                   />
+                  <span className="text-xs leading-6 text-bone/42">
+                    Collection hero: `16:9`. Recommended `2400x1350`, minimum `2000x1125`.
+                  </span>
                 </label>
                 <label className="grid gap-2 text-sm text-bone/60">
                   Upload hero
@@ -809,18 +913,16 @@ export function AdminDashboard() {
                 <button
                   type="button"
                   onClick={saveCollection}
+                  disabled={busy || !configured}
                   className="rounded-full bg-bone px-6 py-3 text-xs uppercase tracking-[0.22em] text-abyss transition hover:bg-white"
                 >
-                  Save collection
+                  {busy ? "Saving..." : "Save collection"}
                 </button>
                 {selectedCollectionHandle ? (
                   <button
                     type="button"
-                    onClick={() => {
-                      deleteCollection(selectedCollectionHandle);
-                      setSelectedCollectionHandle("");
-                      setCollectionForm(emptyCollection());
-                    }}
+                    onClick={removeCollection}
+                    disabled={busy || !configured}
                     className="inline-flex items-center gap-2 rounded-full border border-ember/35 px-6 py-3 text-xs uppercase tracking-[0.22em] text-ember transition hover:border-ember/70"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -899,6 +1001,47 @@ export function AdminDashboard() {
                   Current storefront hero remains on brand: {siteConfig.hero.title.replace("\n", " ")}
                 </p>
               </div>
+            </div>
+          </div>
+
+          <div className="panel rounded-[2rem] p-6">
+            <p className="eyebrow">Asset Specs</p>
+            <h2 className="mt-3 font-serif text-4xl uppercase">Upload dimensions</h2>
+            <div className="mt-6 grid gap-3">
+              {[
+                {
+                  title: "Collection hero",
+                  detail: "16:9, recommended 2400x1350, minimum 2000x1125"
+                },
+                {
+                  title: "Product main image",
+                  detail: "4:5 portrait, recommended 2000x2500, minimum 1600x2000"
+                },
+                {
+                  title: "Lookbook image",
+                  detail: "3:4 portrait, recommended 1800x2400, minimum 1350x1800"
+                },
+                {
+                  title: "Culture / social tile",
+                  detail: "4:5 portrait, recommended 1080x1350"
+                },
+                {
+                  title: "Category card",
+                  detail: "9:7 landscape, recommended 1800x1400"
+                },
+                {
+                  title: "Logo / favicon source",
+                  detail: "1:1 square, recommended 1024x1024 or SVG"
+                }
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-[1.4rem] border border-bone/10 bg-white/[0.02] px-4 py-3"
+                >
+                  <p className="text-sm uppercase tracking-[0.16em] text-bone">{item.title}</p>
+                  <p className="mt-2 text-sm leading-7 text-bone/58">{item.detail}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>

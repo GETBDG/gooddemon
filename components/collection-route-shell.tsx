@@ -18,7 +18,7 @@ export function CollectionRouteShell({
       <div className="container-shell py-16">
         <div className="panel rounded-[2rem] p-8">
           <p className="eyebrow">Loading collection</p>
-          <p className="mt-4 text-sm text-bone/62">Resolving local admin catalog data.</p>
+          <p className="mt-4 text-sm text-bone/62">Loading catalog data from Supabase.</p>
         </div>
       </div>
     );
@@ -31,7 +31,7 @@ export function CollectionRouteShell({
           <p className="eyebrow">Collection missing</p>
           <h1 className="mt-4 font-serif text-4xl uppercase">This collection does not exist.</h1>
           <p className="mt-4 max-w-xl text-sm leading-7 text-bone/62">
-            Create it from the visible admin panel or check the handle used in the URL.
+            Create it in `/admin` and save it to Supabase, or check the handle used in the URL.
           </p>
         </div>
       </div>

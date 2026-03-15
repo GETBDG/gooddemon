@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { ProductRouteShell } from "@/components/product-route-shell";
-import { getProductByHandle } from "@/content/site";
 
 type Props = {
   params: {
@@ -9,16 +8,12 @@ type Props = {
 };
 
 export function generateMetadata({ params }: Props): Metadata {
-  const product = getProductByHandle(params.handle);
-
   return {
-    title: product ? `${product.name} | GOODDEMON` : "Product | GOODDEMON",
-    description:
-      product?.description ?? "GOODDEMON product detail. Preview products created from admin.",
+    title: "Product | GOODDEMON",
+    description: `GOODDEMON product detail for ${params.handle}. Loaded from Supabase catalog.`,
     openGraph: {
-      title: product ? `${product.name} | GOODDEMON` : "Product | GOODDEMON",
-      description:
-        product?.description ?? "GOODDEMON product detail. Preview products created from admin."
+      title: "Product | GOODDEMON",
+      description: `GOODDEMON product detail for ${params.handle}. Loaded from Supabase catalog.`
     }
   };
 }

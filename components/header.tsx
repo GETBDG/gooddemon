@@ -1,23 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Heart, Menu, ShoppingBag } from "lucide-react";
 import { siteConfig } from "@/content/site";
+import { useCatalog } from "@/components/providers/catalog-provider";
 import { useStore } from "@/components/providers/store-provider";
 import { Logo } from "@/components/ui/logo";
 
-const nav = [
-  { href: "/collections/the-betrayal", label: "Drop" },
-  { href: "/collections/the-faithless", label: "Archive" },
-  { href: "#manifesto", label: "Manifesto" },
-  { href: "#lookbook", label: "Lookbook" },
-  { href: "/admin", label: "Admin" }
-];
-
 export function Header() {
+  const { collections } = useCatalog();
   const { cartCount, openCart, wishlist } = useStore();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const nav = useMemo(
+    () => [
+      { href: collections[0] ? `/collections/${collections[0].handle}` : "/admin", label: "Drop" },
+      { href: collections[1] ? `/collections/${collections[1].handle}` : "/admin", label: "Archive" },
+      { href: "#manifesto", label: "Manifesto" },
+      { href: "#lookbook", label: "Lookbook" },
+      { href: "/admin", label: "Admin" }
+    ],
+    [collections]
+  );
 
   return (
     <header className="sticky top-0 z-40 border-b border-bone/10 bg-abyss/75 backdrop-blur-xl">

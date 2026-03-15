@@ -16,10 +16,10 @@ export default function NotFound() {
           Return Home
         </Link>
         <Link
-          href="/collections/the-betrayal"
+          href="/admin"
           className="rounded-full bg-bone px-6 py-3 text-sm uppercase tracking-[0.18em] text-abyss transition hover:bg-white"
         >
-          Shop the Drop
+          Open Admin
         </Link>
       </div>
     </div>

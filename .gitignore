@@ -8,3 +8,4 @@ next
 *.log
 .env
 .env.local
+.vercel

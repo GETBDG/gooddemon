@@ -53,3 +53,12 @@ The content model should expose these editable entities:
 - 6-9 lookbook images with consistent grading.
 - 4-6 culture-feed assets sized for portrait and square crops.
 - Collection banners, mobile crops, and checkout-safe neutral packshots.
+
+## Recommended Asset Sizes
+
+- Collection hero: `16:9`, recommended `2400x1350`, minimum `2000x1125`.
+- Product main image: `4:5`, recommended `2000x2500`, minimum `1600x2000`.
+- Lookbook image: `3:4`, recommended `1800x2400`, minimum `1350x1800`.
+- Culture/social tile: `4:5`, recommended `1080x1350`.
+- Category card: `9:7`, recommended `1800x1400`.
+- Logo/favicons source: `1:1`, recommended `1024x1024` or `SVG`.
