@@ -1,0 +1,6 @@
+<svg width="900" height="1200" viewBox="0 0 900 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1200" fill="#ECE5D9"/>
+  <rect x="180" y="120" width="420" height="900" rx="210" fill="#F8F3EA"/>
+  <circle cx="670" cy="230" r="100" fill="#7D1010" opacity=".12"/>
+  <text x="70" y="1100" fill="#090909" fill-opacity=".72" font-family="Georgia, serif" font-size="58">STUDIO</text>
+</svg>

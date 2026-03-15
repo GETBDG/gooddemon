@@ -1,0 +1,7 @@
+<svg width="900" height="1125" viewBox="0 0 900 1125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1125" fill="#E7E1D5"/>
+  <path d="M260 250L370 190H530L640 250L590 410H310L260 250Z" fill="#F7F2E8" stroke="#080808" stroke-opacity=".08"/>
+  <path d="M310 410H590V890H310V410Z" fill="#FBF8F0" stroke="#080808" stroke-opacity=".08"/>
+  <path d="M340 540H560" stroke="#090909" stroke-opacity=".22" stroke-width="2"/>
+  <text x="158" y="1035" fill="#090909" fill-opacity=".7" font-family="Georgia, serif" font-size="54">REVERSE</text>
+</svg>

@@ -1,0 +1,6 @@
+<svg width="900" height="700" viewBox="0 0 900 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="700" fill="#050505"/>
+  <circle cx="680" cy="150" r="110" fill="#7D1010" opacity=".24"/>
+  <rect x="220" y="120" width="460" height="460" rx="230" fill="#131313"/>
+  <text x="72" y="620" fill="#EDE7DB" fill-opacity=".72" font-family="Georgia, serif" font-size="62">NEW DROP</text>
+</svg>

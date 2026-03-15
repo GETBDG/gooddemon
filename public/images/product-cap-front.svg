@@ -1,0 +1,7 @@
+<svg width="900" height="1125" viewBox="0 0 900 1125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1125" fill="#080808"/>
+  <path d="M200 580C250 380 650 380 700 580C640 660 260 660 200 580Z" fill="#141414"/>
+  <path d="M310 540C360 470 540 470 590 540V650H310V540Z" fill="#1B1B1B"/>
+  <circle cx="450" cy="560" r="36" fill="#AEB4BE" opacity=".36"/>
+  <text x="110" y="1035" fill="#EDE7DB" fill-opacity=".68" font-family="Georgia, serif" font-size="54">FORBIDDEN ROSARY</text>
+</svg>

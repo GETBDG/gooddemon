@@ -1,0 +1,6 @@
+<svg width="900" height="700" viewBox="0 0 900 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="700" fill="#090909"/>
+  <circle cx="700" cy="140" r="100" fill="#AEB4BE" opacity=".16"/>
+  <path d="M300 160L410 100H490L600 160L650 330L590 570H310L250 330L300 160Z" fill="#171717"/>
+  <text x="72" y="620" fill="#EDE7DB" fill-opacity=".72" font-family="Georgia, serif" font-size="62">OUTERWEAR</text>
+</svg>

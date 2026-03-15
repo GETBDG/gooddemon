@@ -1,0 +1,6 @@
+<svg width="900" height="700" viewBox="0 0 900 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="700" fill="#070707"/>
+  <circle cx="450" cy="320" r="180" fill="#7D1010" opacity=".18"/>
+  <path d="M280 180H620V520H280V180Z" stroke="#EDE7DB" stroke-opacity=".14" stroke-width="2"/>
+  <text x="72" y="620" fill="#EDE7DB" fill-opacity=".72" font-family="Georgia, serif" font-size="62">LIMITED</text>
+</svg>

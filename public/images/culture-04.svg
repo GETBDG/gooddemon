@@ -1,0 +1,7 @@
+<svg width="900" height="1200" viewBox="0 0 900 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1200" fill="#060606"/>
+  <circle cx="680" cy="240" r="100" fill="#AEB4BE" opacity=".16"/>
+  <rect x="190" y="110" width="410" height="920" rx="205" fill="#171717"/>
+  <path d="M680 500L760 600L680 700" stroke="#EDE7DB" stroke-opacity=".24" stroke-width="4"/>
+  <text x="70" y="1100" fill="#EDE7DB" fill-opacity=".72" font-family="Georgia, serif" font-size="58">BACKSTAGE</text>
+</svg>

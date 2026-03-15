@@ -1,0 +1,9 @@
+<svg width="900" height="1125" viewBox="0 0 900 1125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1125" fill="#080808"/>
+  <rect x="185" y="160" width="530" height="800" rx="42" fill="#141414"/>
+  <path d="M255 280H645V840H255V280Z" fill="#1A1A1A"/>
+  <path d="M300 350H600" stroke="#AEB4BE" stroke-opacity=".18" stroke-width="2"/>
+  <path d="M300 430H600" stroke="#AEB4BE" stroke-opacity=".18" stroke-width="2"/>
+  <circle cx="450" cy="600" r="90" fill="#AEB4BE" opacity=".1"/>
+  <text x="158" y="1028" fill="#EDE7DB" fill-opacity=".62" font-family="Georgia, serif" font-size="54">HARDWARE</text>
+</svg>

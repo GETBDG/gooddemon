@@ -1,0 +1,7 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#050505"/>
+  <circle cx="1220" cy="220" r="180" fill="#7D1010" opacity=".34"/>
+  <rect x="180" y="100" width="500" height="700" rx="250" fill="#131313"/>
+  <path d="M780 160H1460V740H980" stroke="#EDE7DB" stroke-opacity=".12" stroke-width="2"/>
+  <text x="820" y="450" fill="#EDE7DB" fill-opacity=".68" font-family="Georgia, serif" font-size="96">THE BETRAYAL</text>
+</svg>

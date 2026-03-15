@@ -1,0 +1,6 @@
+<svg width="900" height="700" viewBox="0 0 900 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="700" fill="#080808"/>
+  <circle cx="700" cy="130" r="100" fill="#7D1010" opacity=".22"/>
+  <path d="M310 150L450 70L590 150L650 350L590 590H310L250 350L310 150Z" fill="#111111"/>
+  <text x="72" y="620" fill="#EDE7DB" fill-opacity=".72" font-family="Georgia, serif" font-size="62">HOODIES</text>
+</svg>

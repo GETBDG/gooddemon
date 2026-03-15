@@ -1,0 +1,7 @@
+<svg width="900" height="700" viewBox="0 0 900 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="700" fill="#E4DED2"/>
+  <circle cx="690" cy="140" r="100" fill="#7D1010" opacity=".16"/>
+  <path d="M260 170L360 130H540L640 170L595 320H305L260 170Z" fill="#F8F4EC"/>
+  <path d="M305 320H595V620H305V320Z" fill="#F4EFE5"/>
+  <text x="72" y="620" fill="#090909" fill-opacity=".75" font-family="Georgia, serif" font-size="62">TEES</text>
+</svg>

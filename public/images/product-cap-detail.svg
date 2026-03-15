@@ -1,0 +1,8 @@
+<svg width="900" height="1125" viewBox="0 0 900 1125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1125" fill="#070707"/>
+  <rect x="180" y="180" width="540" height="760" rx="52" fill="#121212"/>
+  <circle cx="450" cy="520" r="110" fill="#AEB4BE" opacity=".18"/>
+  <path d="M300 660H600" stroke="#EDE7DB" stroke-opacity=".18" stroke-width="2"/>
+  <path d="M330 720H570" stroke="#EDE7DB" stroke-opacity=".12" stroke-width="2"/>
+  <text x="192" y="1030" fill="#EDE7DB" fill-opacity=".62" font-family="Georgia, serif" font-size="54">PLAQUE DETAIL</text>
+</svg>

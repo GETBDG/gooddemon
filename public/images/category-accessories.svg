@@ -1,0 +1,7 @@
+<svg width="900" height="700" viewBox="0 0 900 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="700" fill="#0A0A0A"/>
+  <path d="M220 390C260 230 640 230 680 390C620 455 280 455 220 390Z" fill="#151515"/>
+  <path d="M330 360C370 305 530 305 570 360V435H330V360Z" fill="#1F1F1F"/>
+  <circle cx="450" cy="370" r="30" fill="#AEB4BE" opacity=".32"/>
+  <text x="72" y="620" fill="#EDE7DB" fill-opacity=".72" font-family="Georgia, serif" font-size="62">ACCESSORIES</text>
+</svg>

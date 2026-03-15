@@ -1,0 +1,19 @@
+<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="1200" fill="#050505"/>
+  <rect x="980" y="0" width="620" height="1200" fill="url(#a)" opacity=".55"/>
+  <circle cx="1210" cy="230" r="190" fill="#7D1010" opacity=".35"/>
+  <rect x="160" y="140" width="600" height="900" rx="300" fill="#111111"/>
+  <rect x="200" y="180" width="520" height="820" rx="260" fill="url(#b)" opacity=".85"/>
+  <path d="M1280 170C1200 310 1105 455 1005 630C930 762 865 887 790 1030" stroke="#EDE7DB" stroke-opacity=".22" stroke-width="2"/>
+  <text x="102" y="1080" fill="#EDE7DB" fill-opacity=".72" font-family="Georgia, serif" font-size="74" letter-spacing="10">GOODDEMON</text>
+  <defs>
+    <linearGradient id="a" x1="1290" y1="0" x2="1290" y2="1200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#AEB4BE"/>
+      <stop offset="1" stop-color="#050505" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="b" x1="460" y1="180" x2="460" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2A2A2A"/>
+      <stop offset="1" stop-color="#050505"/>
+    </linearGradient>
+  </defs>
+</svg>

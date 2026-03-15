@@ -1,0 +1,7 @@
+<svg width="900" height="1125" viewBox="0 0 900 1125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1125" fill="#080808"/>
+  <circle cx="650" cy="210" r="120" fill="#7D1010" opacity=".22"/>
+  <path d="M320 250L450 150L580 250L640 520L590 900H310L260 520L320 250Z" fill="#111111" stroke="#EDE7DB" stroke-opacity=".14"/>
+  <rect x="355" y="420" width="190" height="250" rx="95" fill="#191919"/>
+  <text x="110" y="1030" fill="#EDE7DB" fill-opacity=".7" font-family="Georgia, serif" font-size="54">BETRAYAL VEIL</text>
+</svg>

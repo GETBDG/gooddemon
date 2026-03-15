@@ -1,0 +1,6 @@
+<svg width="900" height="1125" viewBox="0 0 900 1125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1125" fill="#090909"/>
+  <path d="M320 250L450 150L580 250L640 520L590 900H310L260 520L320 250Z" fill="#101010" stroke="#EDE7DB" stroke-opacity=".12"/>
+  <path d="M450 340V780" stroke="#AEB4BE" stroke-opacity=".22" stroke-width="3"/>
+  <text x="136" y="1030" fill="#EDE7DB" fill-opacity=".62" font-family="Georgia, serif" font-size="54">BACK STUDY</text>
+</svg>

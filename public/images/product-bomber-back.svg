@@ -1,0 +1,6 @@
+<svg width="900" height="1125" viewBox="0 0 900 1125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1125" fill="#090909"/>
+  <path d="M280 250L410 170H490L620 250L670 500L590 890H310L230 500L280 250Z" fill="#151515" stroke="#EDE7DB" stroke-opacity=".12"/>
+  <path d="M450 330V800" stroke="#AEB4BE" stroke-opacity=".18" stroke-width="3"/>
+  <text x="138" y="1030" fill="#EDE7DB" fill-opacity=".62" font-family="Georgia, serif" font-size="54">ARCHIVE BACK</text>
+</svg>

@@ -1,0 +1,7 @@
+<svg width="1200" height="1600" viewBox="0 0 1200 1600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1600" fill="#0B0B0B"/>
+  <rect x="170" y="140" width="500" height="1200" rx="250" fill="#EEE7DB"/>
+  <rect x="760" y="210" width="210" height="980" rx="105" fill="#141414"/>
+  <circle cx="905" cy="200" r="90" fill="#7D1010" opacity=".26"/>
+  <text x="72" y="1490" fill="#EDE7DB" fill-opacity=".72" font-family="Georgia, serif" font-size="74">CEREMONY I</text>
+</svg>

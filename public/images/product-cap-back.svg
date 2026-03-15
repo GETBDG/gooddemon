@@ -1,0 +1,6 @@
+<svg width="900" height="1125" viewBox="0 0 900 1125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1125" fill="#090909"/>
+  <path d="M200 580C250 380 650 380 700 580C640 660 260 660 200 580Z" fill="#151515"/>
+  <path d="M390 600C430 630 470 630 510 600" stroke="#EDE7DB" stroke-opacity=".24" stroke-width="4" stroke-linecap="round"/>
+  <text x="192" y="1035" fill="#EDE7DB" fill-opacity=".62" font-family="Georgia, serif" font-size="54">BACK ARC</text>
+</svg>
